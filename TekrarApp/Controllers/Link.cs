@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text;
 using VideoLibrary;
-
-
+using System.IO;
+using TekrarApp.Model;
 
 namespace TekrarApp.Controllers
 {
@@ -17,13 +17,13 @@ namespace TekrarApp.Controllers
         [HttpPost("ConvertLink")]
         public IActionResult ConvertLink(string url)
         {
-            var source = @"C:\Users\bfindik\Desktop\TekrarAppMp3Folder\";
+            var source = @"C:\Users\batu_\Desktop\TekrarAppMp3Folder\";
             var youtube = YouTube.Default;
             var vid = youtube.GetVideo(url);
             System.IO.File.WriteAllBytes(source + vid.FullName, vid.GetBytes());
 
             var inputFile = new MediaFile { Filename = source + vid.FullName };
-            var outputFile = new MediaFile { Filename = $"{source + vid.FullName.Replace("mp4","mp3")}.mp3" };
+            var outputFile = new MediaFile { Filename = $"{source + vid.FullName.Replace("mp4","mp3")}" };
 
             using (var engine = new Engine())
             {
@@ -32,11 +32,13 @@ namespace TekrarApp.Controllers
                 engine.Convert(inputFile, outputFile);
             }
 
-           // System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-           
-            return Ok(Convert.ToBase64String(System.IO.File.ReadAllBytes(outputFile.Filename)));           
+            return Ok(
+                    new Song()
+                    {
+                        File = System.IO.File.ReadAllBytes(outputFile.Filename),
+                        Name = vid.FullName.Replace("mp4", "mp3")
+                    }
+                );           
         }
-
     }
 }
