@@ -32,11 +32,18 @@ namespace TekrarApp.Controllers
                 engine.Convert(inputFile, outputFile);
             }
 
+            byte[] File = System.IO.File.ReadAllBytes(outputFile.Filename);
+            string Name = vid.FullName.Replace("mp4", "mp3");
+
+
+            System.IO.File.Delete(inputFile.Filename);
+            System.IO.File.Delete(outputFile.Filename);
+
             return Ok(
                     new Song()
                     {
-                        File = System.IO.File.ReadAllBytes(outputFile.Filename),
-                        Name = vid.FullName.Replace("mp4", "mp3")
+                        File = File,
+                        Name = Name
                     }
                 );           
         }
