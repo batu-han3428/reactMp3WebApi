@@ -1,11 +1,19 @@
 {
   "Version": 1,
-  "Hash": "3wk0kplgUr0y4NOTyDgvOBaXOmIC+nHXLy1iiXbxEFI=",
+  "Hash": "N5iQtS4XUtQmL6YbXDiEtMLges+rXhY6PNbBDL5/WF8=",
   "Source": "TekrarApp",
   "BasePath": "_content/TekrarApp",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "TekrarApp\\wwwroot",
+      "Source": "TekrarApp",
+      "ContentRoot": "C:\\Users\\bfindik\\Desktop\\mp3Project\\reactMp3B\\TekrarApp\\wwwroot\\",
+      "BasePath": "_content/TekrarApp",
+      "Pattern": "**"
+    }
+  ],
   "Assets": []
 }
