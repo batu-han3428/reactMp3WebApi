@@ -12,8 +12,8 @@ using TekrarApp.Context;
 namespace TekrarApp.Migrations
 {
     [DbContext(typeof(JwtDbContext))]
-    [Migration("20220628143300_initDb")]
-    partial class initDb
+    [Migration("20220701083248_initDb-2")]
+    partial class initDb2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -62,7 +62,6 @@ namespace TekrarApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefrestTokenEndDate")

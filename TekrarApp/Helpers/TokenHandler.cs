@@ -3,13 +3,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using TekrarApp.Model;
 
-namespace TekrarApp.Model
+namespace TekrarApp.Helpers
 {
     public class TokenHandler
     {
         public IConfiguration Configuration { get; set; }
-        public TokenHandler(IConfiguration configuration) {
+        public TokenHandler(IConfiguration configuration)
+        {
             Configuration = configuration;
         }
         public Token CreateAccessToken(User user)
@@ -18,7 +20,7 @@ namespace TekrarApp.Model
 
             foreach (var item in user.UserRoles)
             {
-                claims.Add(new Claim(ClaimTypes.Role,item.Role.Name));
+                claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
             }
 
             Token tokenInstance = new Token();
@@ -45,7 +47,7 @@ namespace TekrarApp.Model
         public string CreateRefreshToken()
         {
             byte[] number = new byte[32];
-            using(RandomNumberGenerator random = RandomNumberGenerator.Create())
+            using (RandomNumberGenerator random = RandomNumberGenerator.Create())
             {
                 random.GetBytes(number);
                 return Convert.ToBase64String(number);

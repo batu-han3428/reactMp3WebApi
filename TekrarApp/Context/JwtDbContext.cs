@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TekrarApp.Model;
 
-namespace TekrarApp.Model
+namespace TekrarApp.Context
 {
-    public class JwtDbContext:DbContext
+    public class JwtDbContext : DbContext
     {
         public JwtDbContext(DbContextOptions options) : base(options)
         {
@@ -23,7 +24,7 @@ namespace TekrarApp.Model
                 .WithMany(user => user.UserRoles);
 
             modelBuilder.Entity<UserRole>()
-                .HasOne(ur=>ur.Role)
+                .HasOne(ur => ur.Role)
                 .WithMany(role => role.UserRoles);
         }
     }
