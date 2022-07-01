@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,16 +29,28 @@ namespace TekrarApp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<bool> Create([FromForm] User user)
+        public async Task<HttpStatusCode> Register(User user)
         {
+
+            if (await context.Users.AnyAsync(u => u.Email == user.Email))
+            {
+                return HttpStatusCode.Forbidden;
+            }
+
             user.Password = _sha.Encrypt(user.Password);
             context.Users.Add(user);
-            await context.SaveChangesAsync();
-            return true;
+            int result = await context.SaveChangesAsync();
+
+            if (result == 0)
+                return HttpStatusCode.BadRequest;
+            else
+            {
+                return HttpStatusCode.OK;
+            }
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult> Login(UserLogin userLogin)
+        public async Task<HttpStatusCode> Login(UserLogin userLogin)
         {
             User user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x=>x.Email == userLogin.Email && x.Password == userLogin.Password);
             
@@ -57,10 +70,10 @@ namespace TekrarApp.Controllers
                 Response.Cookies.Append("AccessToken", _sha.Encrypt(token.AccessToken), cookieOptions);
                 Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
 
-                return Ok("success");
+                return HttpStatusCode.OK;
             }
 
-            return Problem("error");
+            return HttpStatusCode.Forbidden;
         }
 
         [HttpGet("[action]")]
