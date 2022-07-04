@@ -26,6 +26,8 @@ namespace TekrarApp.Context
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.Role)
                 .WithMany(role => role.UserRoles);
+
+            modelBuilder.Entity<User>().Property(x => x.IsConfirmEmail).HasDefaultValue(false);
         }
     }
 }

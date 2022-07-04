@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using System.Net;
+using System.Net.Mail;
 
 namespace TekrarApp.Helpers
 {
@@ -17,10 +18,12 @@ namespace TekrarApp.Helpers
 
             #region SmtpSettings
             SmtpClient client = new SmtpClient();
-            client.Credentials = new System.Net.NetworkCredential("bticaret01@gmail.com", "Proje3434.**");
+            client.Credentials = new NetworkCredential("bticaret01@gmail.com", "yfpmyrmxfiftlgoh");
             client.Host = "smtp.gmail.com";
             client.Port = 587;
             client.EnableSsl = true;
+            client.UseDefaultCredentials = false;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
             #endregion
 
             try

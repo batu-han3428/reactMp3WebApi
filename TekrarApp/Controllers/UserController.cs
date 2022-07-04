@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using TekrarApp.Context;
 using TekrarApp.Helpers;
 using TekrarApp.Model;
@@ -31,6 +32,16 @@ namespace TekrarApp.Controllers
         [HttpPost("[action]")]
         public async Task<HttpStatusCode> Register(User user)
         {
+            if (!ModelState.IsValid)
+            {
+                return HttpStatusCode.BadRequest;
+            }
+
+            Regex regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$");
+
+            if(!regex.IsMatch(user.Password)){
+                return HttpStatusCode.BadRequest;
+            }
 
             if (await context.Users.AnyAsync(u => u.Email == user.Email))
             {
@@ -45,35 +56,62 @@ namespace TekrarApp.Controllers
                 return HttpStatusCode.BadRequest;
             else
             {
-                return HttpStatusCode.OK;
+                var code = _sha.Encrypt(user.Email);
+
+                StringBuilder mailbuilder = new StringBuilder();
+                mailbuilder.Append("<html>");
+                mailbuilder.Append("<head>");
+                mailbuilder.Append("<meta charset= utf-8 />");
+                mailbuilder.Append("<title>Email Onaylama</title>");
+                mailbuilder.Append("</head>");
+                mailbuilder.Append("<body>");
+                mailbuilder.Append($"<p>Merhaba {user.Name}</p><br/>");
+                mailbuilder.Append($"Mail adresinizi onaylamak için aşağıda ki bağlantı adresien tıklayınız.<br/>");
+                mailbuilder.Append($"<a onclick='window.close()' href='https://localhost:7024/api/User/ConfirmEmail/?uid={user.Id}&code={code}'>Email adresinizi onaylayın.");
+                mailbuilder.Append("</body>");
+                mailbuilder.Append("</html>");
+
+                EmailHelper emailHelper = new EmailHelper();
+                bool isSend = emailHelper.SendEmail(user.Email, mailbuilder.ToString());
+
+                if (isSend)
+                    return HttpStatusCode.OK;
+                else
+                    return HttpStatusCode.BadRequest;
             }
         }
 
         [HttpPost("[action]")]
         public async Task<HttpStatusCode> Login(UserLogin userLogin)
         {
-            User user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x=>x.Email == userLogin.Email && x.Password == userLogin.Password);
-            
-            if(user != null)
+            if (!await context.Users.AnyAsync(x => x.Email == userLogin.Email && x.Password == _sha.Encrypt(userLogin.Password)))
+                return HttpStatusCode.Forbidden;
+            else if (await context.Users.AnyAsync(x => x.Email == userLogin.Email && x.Password == _sha.Encrypt(userLogin.Password) && x.IsConfirmEmail == false))
+                return HttpStatusCode.Unauthorized;
+            else
             {
-                TokenHandler tokenHandler = new TokenHandler(configuration);
-                Token token = tokenHandler.CreateAccessToken(user);
-                user.RefreshToken = _sha.Encrypt(token.RefreshToken);
-                user.RefrestTokenEndDate = token.Expiration.AddMinutes(3);
-                await context.SaveChangesAsync();
+                User user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Email == userLogin.Email && x.Password == _sha.Encrypt(userLogin.Password) && x.IsConfirmEmail == true);
 
-                var cookieOptions = new CookieOptions
+                if (user != null)
                 {
-                    Expires = DateTime.UtcNow.AddHours(100000)
-                };
+                    TokenHandler tokenHandler = new TokenHandler(configuration);
+                    Token token = tokenHandler.CreateAccessToken(user);
+                    user.RefreshToken = _sha.Encrypt(token.RefreshToken);
+                    user.RefrestTokenEndDate = token.Expiration.AddMinutes(3);
+                    await context.SaveChangesAsync();
 
-                Response.Cookies.Append("AccessToken", _sha.Encrypt(token.AccessToken), cookieOptions);
-                Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
+                    var cookieOptions = new CookieOptions
+                    {
+                        Expires = DateTime.UtcNow.AddHours(100000)
+                    };
 
-                return HttpStatusCode.OK;
-            }
+                    Response.Cookies.Append("AccessToken", _sha.Encrypt(token.AccessToken), cookieOptions);
+                    Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
 
-            return HttpStatusCode.Forbidden;
+                    return HttpStatusCode.OK;
+                }
+                return HttpStatusCode.BadRequest;
+            } 
         }
 
         [HttpGet("[action]")]
@@ -102,6 +140,24 @@ namespace TekrarApp.Controllers
                 return Ok("success");
             }
             return Problem("error");
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ConfirmEmail(string uid, string code)
+        {
+            if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(code))
+            {
+                var user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(uid));
+         
+                if (code == _sha.Encrypt(user.Email))
+                {
+                    user.IsConfirmEmail = true;
+                    context.Users.Update(user);
+                    context.SaveChangesAsync();
+                }
+            }
+
+            return Redirect("https://localhost:3000/login");
         }
     }
 }
