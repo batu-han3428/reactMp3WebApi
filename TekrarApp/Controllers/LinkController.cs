@@ -15,13 +15,14 @@ namespace TekrarApp.Controllers
     [ApiController]
     public class LinkController : ControllerBase
     {
+        
+        [HttpPost("[action]")]
         [Authorize(Roles = "Admin")]
-        [HttpPost("ConvertLink")]
-        public IActionResult ConvertLink(string url)
+        public IActionResult ConvertLink(ConvertLink convertLink)
         {
             var source = @"C:\Users\bfindik\Desktop\TekrarAppMp3Folder\";
             var youtube = YouTube.Default;
-            var vid = youtube.GetVideo(url);
+            var vid = youtube.GetVideo(convertLink.url);
             System.IO.File.WriteAllBytes(source + vid.FullName, vid.GetBytes());
 
             var inputFile = new MediaFile { Filename = source + vid.FullName };

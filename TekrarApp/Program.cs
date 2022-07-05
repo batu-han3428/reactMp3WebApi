@@ -14,11 +14,12 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<JwtDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("JwtConStr")));
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => {
-    policy.WithOrigins(new[] { "https://localhost:3000"})
+    policy.WithOrigins(new[] { "https://localhost:3000" })
             .AllowAnyHeader()
             .AllowAnyMethod()
                 .AllowCredentials();                   
 }));
+
 
 
 var key = Encoding.ASCII.GetBytes(Configuration["Token:SecurityKey"]);

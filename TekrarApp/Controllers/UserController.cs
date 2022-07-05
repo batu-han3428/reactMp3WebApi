@@ -149,15 +149,17 @@ namespace TekrarApp.Controllers
             {
                 var user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(uid));
          
-                if (code == _sha.Encrypt(user.Email))
+                if (code == _sha.Encrypt(user.Email) && user.IsConfirmEmail == false)
                 {
                     user.IsConfirmEmail = true;
                     context.Users.Update(user);
                     context.SaveChangesAsync();
+
+                    return Redirect("https://localhost:3000/ConfirmEmail/"+ _sha.Encrypt(user.Email));
                 }
             }
 
-            return Redirect("https://localhost:3000/login");
+            return Redirect("https://localhost:3000/FailedEmail");
         }
     }
 }
