@@ -82,7 +82,7 @@ namespace TekrarApp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<HttpStatusCode> Login(UserLogin userLogin)
+        public async Task<HttpStatusCode> Login( UserLogin userLogin)
         {
             if (!await context.Users.AnyAsync(x => x.Email == userLogin.Email && x.Password == _sha.Encrypt(userLogin.Password)))
                 return HttpStatusCode.Forbidden;
@@ -96,7 +96,7 @@ namespace TekrarApp.Controllers
                 {
                     TokenHandler tokenHandler = new TokenHandler(configuration);
                     Token token = tokenHandler.CreateAccessToken(user);
-                    user.RefreshToken = _sha.Encrypt(token.RefreshToken);
+                    user.RefreshToken = token.RefreshToken;
                     user.RefrestTokenEndDate = token.Expiration.AddMinutes(3);
                     await context.SaveChangesAsync();
 
@@ -105,7 +105,7 @@ namespace TekrarApp.Controllers
                         Expires = DateTime.UtcNow.AddHours(100000)
                     };
 
-                    Response.Cookies.Append("AccessToken", _sha.Encrypt(token.AccessToken), cookieOptions);
+                    Response.Cookies.Append("AccessToken", token.AccessToken, cookieOptions);
                     Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
 
                     return HttpStatusCode.OK;
@@ -123,7 +123,7 @@ namespace TekrarApp.Controllers
                 TokenHandler tokenHandler = new TokenHandler(configuration);
                 Token token = tokenHandler.CreateAccessToken(user);
 
-                user.RefreshToken = _sha.Encrypt(token.RefreshToken);
+                user.RefreshToken = token.RefreshToken;
                 user.RefrestTokenEndDate = token.Expiration.AddMinutes(3);
                 await context.SaveChangesAsync();
 
@@ -155,11 +155,11 @@ namespace TekrarApp.Controllers
                     context.Users.Update(user);
                     context.SaveChangesAsync();
 
-                    return Redirect("https://localhost:3000/ConfirmEmail/"+ _sha.Encrypt(user.Email));
+                    return Redirect("https://localhost:3000/ConfirmEmail/:true");
                 }
             }
 
-            return Redirect("https://localhost:3000/FailedEmail");
+            return Redirect("https://localhost:3000/ConfirmEmail/:false");
         }
     }
 }

@@ -29,9 +29,15 @@ namespace TekrarApp.Helpers
 
             SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            tokenInstance.Expiration = DateTime.Now.AddMinutes(5);
+            tokenInstance.Expiration = DateTime.Now.AddDays(1);
 
-            JwtSecurityToken securityToken = new JwtSecurityToken(issuer: Configuration["Token:Issuer"], audience: Configuration["Token:Audience"], expires: tokenInstance.Expiration, claims: claims, notBefore: DateTime.Now, signingCredentials: signingCredentials);
+            JwtSecurityToken securityToken = new JwtSecurityToken(issuer: Configuration["Token:Issuer"], audience: Configuration["Token:Audience"], expires: tokenInstance.Expiration,  notBefore: DateTime.Now, signingCredentials: signingCredentials);
+
+
+            securityToken.Payload["isAuthenticated"] = true;
+            securityToken.Payload["name"] = user.Name;
+            securityToken.Payload["roles"] = claims;
+
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
