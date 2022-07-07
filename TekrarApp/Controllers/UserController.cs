@@ -82,7 +82,7 @@ namespace TekrarApp.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<HttpStatusCode> Login( UserLogin userLogin)
+        public async Task<HttpStatusCode> Login(UserLogin userLogin)
         {
             if (!await context.Users.AnyAsync(x => x.Email == userLogin.Email && x.Password == _sha.Encrypt(userLogin.Password)))
                 return HttpStatusCode.Forbidden;
@@ -102,11 +102,11 @@ namespace TekrarApp.Controllers
 
                     var cookieOptions = new CookieOptions
                     {
-                        Expires = DateTime.UtcNow.AddHours(100000)
+                        Expires = DateTime.UtcNow.AddHours(24)
                     };
 
                     Response.Cookies.Append("AccessToken", token.AccessToken, cookieOptions);
-                    Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
+                    //Response.Cookies.Append("RefreshToken", user.RefreshToken, cookieOptions);
 
                     return HttpStatusCode.OK;
                 }
