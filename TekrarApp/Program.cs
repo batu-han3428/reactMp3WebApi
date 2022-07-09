@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<JwtDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("JwtConStr")));
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => {
-    policy.WithOrigins(new[] { "https://localhost:3000", "https://172.34.1.78:3000", "https://localhost:3001" })
+    policy.WithOrigins(new[] { "http://localhost:3000", "https://localhost:3000", "https://172.34.1.78:3000", "https://localhost:3001" })
             .AllowAnyHeader()
             .AllowAnyMethod()
                 .AllowCredentials();                   
