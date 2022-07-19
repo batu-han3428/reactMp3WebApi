@@ -48,6 +48,8 @@ namespace TekrarApp.Controllers
                 return HttpStatusCode.Forbidden;
             }
 
+            TokenHandler tokenHandler = new TokenHandler(configuration);
+            user.ConfirmEmailToken = tokenHandler.CreateEmailConfirmToken().ConfirmToken;
             user.Password = _sha.Encrypt(user.Password);
             context.Users.Add(user);
             UserRole userRole = new UserRole();
@@ -60,7 +62,9 @@ namespace TekrarApp.Controllers
                 return HttpStatusCode.BadRequest;
             else
             {
-                var code = _sha.Encrypt(user.Email);
+                //var code = _sha.Encrypt(user.Email);
+
+               
 
                 StringBuilder mailbuilder = new StringBuilder();
                 mailbuilder.Append("<html>");
@@ -71,7 +75,7 @@ namespace TekrarApp.Controllers
                 mailbuilder.Append("<body>");
                 mailbuilder.Append($"<p>Merhaba {user.Name}</p><br/>");
                 mailbuilder.Append($"Mail adresinizi onaylamak için aşağıda ki bağlantı adresien tıklayınız.<br/>");
-                mailbuilder.Append($"<a onclick='window.close()' href='https://localhost:7024/api/User/ConfirmEmail/?uid={user.Id}&code={code}'>Email adresinizi onaylayın.");
+                mailbuilder.Append($"<a onclick='window.close()' href='https://localhost:7024/api/User/ConfirmEmail/?uid={user.Id}&code={user.ConfirmEmailToken}'>Email adresinizi onaylayın.");
                 mailbuilder.Append("</body>");
                 mailbuilder.Append("</html>");
 
@@ -149,21 +153,26 @@ namespace TekrarApp.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> ConfirmEmail(string uid, string code)
         {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddMinutes(1)
+            };
+            Response.Cookies.Append("ConfirmToken", code, cookieOptions);
             if (!string.IsNullOrEmpty(uid) && !string.IsNullOrEmpty(code))
             {
                 var user = await context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(x => x.Id == Convert.ToInt32(uid));
          
-                if (code == _sha.Encrypt(user.Email) && user.IsConfirmEmail == false)
+                if (code == user.ConfirmEmailToken && user.IsConfirmEmail == false)
                 {
                     user.IsConfirmEmail = true;
                     context.Users.Update(user);
                     context.SaveChangesAsync();
 
-                    return Redirect("https://localhost:3000/ConfirmEmail/:true");
+                    return Redirect("https://localhost:3001/ConfirmEmail/:true");
                 }
             }
 
-            return Redirect("https://localhost:3000/ConfirmEmail/:false");
+            return Redirect("https://localhost:3001/ConfirmEmail/:false");
         }
     }
 }

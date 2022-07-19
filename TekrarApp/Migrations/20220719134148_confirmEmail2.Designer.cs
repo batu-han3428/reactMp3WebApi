@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TekrarApp.Context;
 
@@ -11,9 +12,10 @@ using TekrarApp.Context;
 namespace TekrarApp.Migrations
 {
     [DbContext(typeof(JwtDbContext))]
-    partial class JwtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220719134148_confirmEmail2")]
+    partial class confirmEmail2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

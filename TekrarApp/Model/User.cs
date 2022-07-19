@@ -17,6 +17,7 @@ namespace TekrarApp.Model
         public string? RefreshToken { get; set; }
         public DateTime? RefrestTokenEndDate { get; set; }
         public bool IsConfirmEmail { get; set; }
+        public string? ConfirmEmailToken { get; set; }
         public ICollection<UserRole>? UserRoles { get; set; }
         
     }

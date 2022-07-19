@@ -59,5 +59,34 @@ namespace TekrarApp.Helpers
                 return Convert.ToBase64String(number);
             }
         }
+
+        public Token CreateEmailConfirmToken()
+        {
+            List<Claim> claims = new List<Claim>();
+
+            claims.Add(new Claim(ClaimTypes.Role, "api"));
+          
+            Token tokenInstance = new Token();
+
+            SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Token:SecurityKey"]));
+
+            SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            tokenInstance.Expiration = DateTime.Now.AddMinutes(1);
+
+            JwtSecurityToken securityToken = new JwtSecurityToken(issuer: Configuration["Token:Issuer"], audience: Configuration["Token:Audience"], expires: tokenInstance.Expiration, notBefore: DateTime.Now, signingCredentials: signingCredentials);
+
+
+            securityToken.Payload["roles"] = claims;
+
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            tokenInstance.ConfirmToken = tokenHandler.WriteToken(securityToken);
+
+            tokenInstance.ConfirmToken = tokenInstance.ConfirmToken;
+
+            return tokenInstance;
+        }
     }
 }

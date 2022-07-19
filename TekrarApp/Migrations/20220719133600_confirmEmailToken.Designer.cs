@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TekrarApp.Context;
 
@@ -11,9 +12,10 @@ using TekrarApp.Context;
 namespace TekrarApp.Migrations
 {
     [DbContext(typeof(JwtDbContext))]
-    partial class JwtDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220719133600_confirmEmailToken")]
+    partial class confirmEmailToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,6 +50,7 @@ namespace TekrarApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ConfirmEmailToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
