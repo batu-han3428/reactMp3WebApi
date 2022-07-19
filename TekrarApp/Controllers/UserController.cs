@@ -50,6 +50,10 @@ namespace TekrarApp.Controllers
 
             user.Password = _sha.Encrypt(user.Password);
             context.Users.Add(user);
+            UserRole userRole = new UserRole();
+            userRole.User = user;
+            userRole.Role = context.Roles.Find(1002);
+            context.UserRoles.Add(userRole);
             int result = await context.SaveChangesAsync();
 
             if (result == 0)
