@@ -80,7 +80,7 @@ namespace TekrarApp.Controllers
                 mailbuilder.Append("</html>");
 
                 EmailHelper emailHelper = new EmailHelper();
-                bool isSend = emailHelper.SendEmail(user.Email, mailbuilder.ToString());
+                bool isSend = emailHelper.SendEmail(user.Email, mailbuilder.ToString(), Emails.bticaret01Email, Emails.bticaret01Password, "Üyelik Onaylama");
 
                 if (isSend)
                     return HttpStatusCode.OK;
@@ -173,6 +173,31 @@ namespace TekrarApp.Controllers
             }
 
             return Redirect("https://localhost:3001/ConfirmEmail/:false");
+        }
+
+        [HttpPost("[action]")]
+        public HttpStatusCode userContact(UserContact user)
+        {
+            StringBuilder mailbuilder = new StringBuilder();
+            mailbuilder.Append("<html>");
+            mailbuilder.Append("<head>");
+            mailbuilder.Append("<meta charset= utf-8 />");
+            mailbuilder.Append("<title>Kullanıcı Mesajı</title>");
+            mailbuilder.Append("</head>");
+            mailbuilder.Append("<body>");
+            mailbuilder.Append($"<h1>Ad/Soyad: {user.name} {user.surname}</h1><br/>");
+            mailbuilder.Append($"<h3>Mail: {user.mail}</h3><br/>");
+            mailbuilder.Append($"<b>Mesaj:</b> <p>{user.message}</p>");
+            mailbuilder.Append("</body>");
+            mailbuilder.Append("</html>");
+
+            EmailHelper emailHelper = new EmailHelper();
+            bool isSend = emailHelper.SendEmail(Emails.bticaret01Email, mailbuilder.ToString(), Emails.usercontactEmail, Emails.usercontactPassword, user.subject);
+
+            if (isSend)
+                return HttpStatusCode.OK;
+            else
+                return HttpStatusCode.BadRequest;
         }
     }
 }
