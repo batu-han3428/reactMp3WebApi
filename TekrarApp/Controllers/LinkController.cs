@@ -17,7 +17,7 @@ namespace TekrarApp.Controllers
     {
         
         [HttpPost("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult ConvertLink(ConvertLink convertLink)
         {
             var source = @"C:\Users\bfindik\Desktop\TekrarAppMp3Folder\";
